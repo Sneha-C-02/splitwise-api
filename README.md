@@ -15,6 +15,15 @@ A production-quality REST API built in Go for tracking shared expenses and split
 
 ---
 
+## Prerequisites
+
+- Go 1.21 or higher
+- Git
+- Any OS (Windows, macOS, Linux)
+- No external database required (SQLite is embedded)
+
+---
+
 ## Setup & Run
 
 ```bash
@@ -23,6 +32,7 @@ cd splitwise-api
 
 # 2. Install dependencies
 go mod tidy
+# All dependencies are managed via Go modules and declared in go.mod.
 
 # 3. Run the server
 go run main.go
@@ -217,23 +227,21 @@ See [`docs/MONEY_HANDLING.md`](docs/MONEY_HANDLING.md) for full explanation.
 
 ## Validation Rules
 
-To ensure financial integrity and API stability:
-
-- Amount must be greater than 0
-- `split_type` is mandatory
-- Percentage splits must sum exactly to 100
-- Exact split amounts must equal total expense amount
-- Only existing group members can be assigned in splits
-- Payer must be a member of the group
+- Amount must be greater than 0  
+- `split_type` is required  
+- Percentage splits must sum exactly to 100  
+- Exact split amounts must equal the total expense amount  
+- Only group members can be included in expense splits  
+- Payer must belong to the group  
 
 ---
 
 ## Security Considerations
 
-- Passwords are stored using bcrypt hashing.
-- Hashed passwords are never returned in API responses.
-- Input validation guards prevent invalid financial data from entering the system.
-- Balances and settlements are computed dynamically (no redundant stored totals).
+- Passwords are stored using bcrypt hashing  
+- Password hashes are never returned in API responses  
+- Financial calculations avoid floating-point arithmetic  
+- All balances are computed dynamically (no redundant stored totals)
 
 ---
 
