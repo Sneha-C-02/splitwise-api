@@ -215,6 +215,28 @@ See [`docs/MONEY_HANDLING.md`](docs/MONEY_HANDLING.md) for full explanation.
 
 ---
 
+## Validation Rules
+
+To ensure financial integrity and API stability:
+
+- Amount must be greater than 0
+- `split_type` is mandatory
+- Percentage splits must sum exactly to 100
+- Exact split amounts must equal total expense amount
+- Only existing group members can be assigned in splits
+- Payer must be a member of the group
+
+---
+
+## Security Considerations
+
+- Passwords are stored using bcrypt hashing.
+- Hashed passwords are never returned in API responses.
+- Input validation guards prevent invalid financial data from entering the system.
+- Balances and settlements are computed dynamically (no redundant stored totals).
+
+---
+
 ## Project Structure
 
 ```
@@ -230,7 +252,8 @@ splitwise-api/
 │   ├── auth.go               # Register, GetUsers
 │   ├── groups.go             # CreateGroup, AddMember, GetGroup
 │   ├── expenses.go           # AddExpense, GetExpenses, DeleteExpense
-│   └── settlements.go        # GetBalances, GetSettlements
+│   ├── settlements.go        # GetBalances, GetSettlements
+│   └── summary.go            # Global summary endpoint
 ├── algorithms/
 │   └── settlement.go         # Greedy minimization algorithm
 ├── docs/
