@@ -1,196 +1,251 @@
 # prompts_used.md — AI Assistance Transparency Log
 
-## Project: Splitwise-style Expense Tracking REST API  
+Project: Splitwise-style Expense Tracking REST API  
 Capstone Project 7 — Go (Golang)
 
 ---
 
 ## Purpose of This Document
 
-This document records the responsible use of AI-assisted development tools during the implementation of this project, in accordance with the project guidelines permitting AI usage with full disclosure.
+This document records the responsible use of AI-assisted development tools during the implementation of this project.
 
-AI tools were used as implementation assistants — not as autonomous project builders.
+Per the project guidelines, AI assistance is permitted provided all prompts are disclosed transparently.
 
-All architectural design, algorithm selection, financial modeling decisions, and system structure were defined and validated by the developer.
+AI tools were used as implementation accelerators and reference assistants — not as autonomous project builders.
 
----
-
-## Development Philosophy
-
-AI was used in the same way modern software engineers use tools such as:
-- StackOverflow
-- Official documentation
-- Code templates
-- Linting and debugging assistants
-
-Every AI-generated snippet was:
-- Reviewed
-- Understood
-- Tested manually using Postman
-- Modified where necessary
-- Validated against project requirements
-
-No code was included without understanding its functionality.
+All architectural decisions, financial modeling strategy, algorithm selection, validation rules, and system structure were defined, verified, and validated by the developer.
 
 ---
 
-## Areas Where AI Assistance Was Used
+# AI Tool Used
 
-### 1. Project Bootstrapping
+- Conversational AI coding assistant (LLM-based code generation tool)
 
-AI assistance was used to:
-- Generate initial Gin + GORM project scaffold
-- Set up database connection
-- Create basic User model
-- Implement initial endpoints (`/register`, `/users`)
-
-Human decisions:
-- Folder structure
-- Dependency selection
-- SQLite instead of PostgreSQL (for zero-config demo)
+Total Implementation Phases: 7  
+All outputs were reviewed, tested, and understood before integration.
 
 ---
 
-### 2. Authentication Hardening
+# Prompts Used During Development
 
-AI assistance was used to:
-- Integrate bcrypt hashing
-- Remove password from API responses
-- Add basic input validation
-
-Human decisions:
-- Never return hashed password
-- Enforce safe response models
-- Maintain separation of input vs output structs
+Below are the structured prompts that guided the AI-generated portions of the implementation.
 
 ---
 
-### 3. Group and Membership Design
+## Prompt 1 — Project Bootstrapping
 
-AI helped generate:
-- Group model
-- GroupMember join model
-- Basic CRUD handlers
+**Purpose:** Initialize project scaffold.
 
-Human design decisions:
-- Auto-add creator as group member
+**Prompt Used:**
+
+> Initialize a Go REST API project named `splitwise-api` using Gin and GORM with a pure Go SQLite driver.  
+> Create a User model with name, email, and password.  
+> Implement `/register` and `/users` endpoints.  
+> Enable database auto-migration.
+
+**Output Integrated:**
+- `main.go`
+- `config/database.go`
+- `models/user.go`
+- Basic handler for registration and listing users
+
+**Developer Decisions:**
+- SQLite chosen for zero-config demonstration
+- Folder structure finalized manually
+- Naming conventions defined manually
+
+---
+
+## Prompt 2 — Authentication Hardening
+
+**Purpose:** Improve password security and response safety.
+
+**Prompt Used:**
+
+> Modify the Register endpoint to hash passwords using bcrypt before saving.  
+> Ensure password hashes are never returned in API responses.  
+> Add basic validation for email and minimum password length.
+
+**Output Integrated:**
+- bcrypt hashing in `handlers/auth.go`
+- Input struct validation
+- Safe JSON response model excluding password
+
+**Developer Validation:**
+- Confirmed hash storage
+- Confirmed password never exposed
+- Tested via Postman
+
+---
+
+## Prompt 3 — Groups & Membership
+
+**Purpose:** Implement group functionality.
+
+**Prompt Used:**
+
+> Implement Group and GroupMember models.  
+> Auto-add group creator as a member when creating a group.  
+> Implement:
+> - POST `/groups`
+> - POST `/groups/:id/members`
+> - GET `/groups/:id`
+
+**Output Integrated:**
+- `models/group.go`
+- `handlers/groups.go`
+
+**Developer Decisions:**
 - Prevent duplicate membership
-- Dynamic membership loading for GET endpoints
+- Dynamically load members in GET responses
+- Enforce membership validation
 
 ---
 
-### 4. Expense Modeling and Money Handling
+## Prompt 4 — Expenses with Financial Precision
 
-AI assistance supported:
-- Struct definitions for Expense and ExpenseSplit
-- Equal split implementation
-- Sum validation for split integrity
+**Purpose:** Add expense handling with correct money modeling.
 
-Human design decisions (Critical):
-- Use `int64` paise instead of float or decimal
-- Never use floating-point math in financial logic
-- Remainder distribution logic for equal splits
+**Prompt Used:**
+
+> Implement Expense and ExpenseSplit models using int64 for monetary values.  
+> Support equal split logic without using floats.  
+> Ensure remainders are distributed correctly.  
+> Implement:
+> - POST `/groups/:id/expenses`
+> - GET `/groups/:id/expenses`
+> - DELETE `/expenses/:id`
+
+**Output Integrated:**
+- `models/expense.go`
+- `handlers/expenses.go`
+
+**Critical Developer Decisions:**
+- Use `int64` paise (never float64)
+- Integer-only math
 - Strict sum validation for exact splits
-- Integer-only math for percentage splits
-
-Financial integrity decisions were made independently and intentionally.
+- Remainder paise distribution logic
 
 ---
 
-### 5. Settlement Algorithm
+## Prompt 5 — Balances & Settlement Algorithm
 
-AI assistance was used to:
-- Structure the greedy matching function
-- Implement sorting logic
+**Purpose:** Compute balances and minimize settlement transactions.
 
-Human algorithm decisions:
-- Use greedy minimization strategy
-- Complexity target: O(n log n)
-- Sort creditors and debtors by descending absolute balance
-- Match largest debtor to largest creditor iteratively
-- Avoid storing settlements in database
-- Compute dynamically to ensure consistency
+**Prompt Used:**
 
-Algorithm logic was reviewed and manually tested with edge-case scenarios:
+> Implement:
+> - GET `/groups/:id/balances`
+> - Greedy settlement algorithm to minimize transactions
+> - GET `/groups/:id/settlements`
+> Sort creditors and debtors by descending absolute balance and match greedily.
+
+**Output Integrated:**
+- `handlers/settlements.go`
+- `algorithms/settlement.go`
+
+**Developer Decisions:**
+- Use Greedy Minimization (O(n log n))
+- Do not store settlements in database
+- Compute dynamically for integrity
+
+**Edge Cases Tested:**
 - Single creditor, multiple debtors
-- Multiple creditors and debtors
+- Multiple creditors
 - Perfectly balanced group
-- Exact remainder matching
+- Large remainder distributions
 
 ---
 
-### 6. Enhancements
+## Prompt 6 — Enhancements (Percentage, Exact, Summary)
 
-AI-assisted implementation included:
-- Percentage-based splits
-- Exact-amount splits
-- Global user summary endpoint
+**Purpose:** Extend real-world split support.
 
-Human decisions:
-- Percentage must sum to 100
-- Exact splits must equal total expense
-- Early validation guards
-- Reuse existing balance logic (no redundancy)
-- No global totals stored in database
+**Prompt Used:**
 
----
+> Enhance AddExpense to support:
+> - Percentage split (must sum to 100)
+> - Exact split (sum must equal expense)
+> Add `/users/:id/summary` endpoint to aggregate global balances.  
+> Do not modify existing equal split behavior.
 
-### 7. Validation Hardening
+**Output Integrated:**
+- Percentage logic with integer math
+- Exact split validation
+- `handlers/summary.go`
 
-AI assistance was used to implement:
-- Guard: `Amount > 0`
-- Guard: `split_type required`
-- Early return validation pattern
-
-Human validation reasoning:
-- Prevent negative expense creation
-- Ensure API contract consistency
-- Avoid invalid ledger state
+**Developer Decisions:**
+- Last-user remainder handling for percentage splits
+- No totals stored in DB
+- Summary reuses dynamic balance computation
 
 ---
 
-## What AI Was NOT Used For
+## Prompt 7 — Validation Hardening
 
-AI was not used to:
-- Choose financial modeling strategy
-- Decide on paise vs float
-- Design overall architecture
-- Decide on greedy minimization approach
-- Determine API structure
-- Write conceptual explanations in documentation
+**Purpose:** Prevent invalid financial states.
+
+**Prompt Used:**
+
+> Add validation guards in AddExpense:
+> - Amount must be > 0
+> - split_type is required  
+> Ensure early exit without affecting existing logic.
+
+**Output Integrated:**
+- Guard clauses in `handlers/expenses.go`
+
+**Developer Reasoning:**
+- Prevent negative ledger states
+- Maintain API contract integrity
+- Early return defensive pattern
+
+---
+
+# What AI Was NOT Used For
+
+AI was NOT used to:
+
+- Choose paise over float strategy
+- Design greedy minimization concept
+- Design system architecture
+- Determine API endpoint structure
+- Define validation philosophy
+- Create financial integrity rules
 - Design testing scenarios
+- Write conceptual explanations in docs
 
-All high-level system reasoning was developer-driven.
+All high-level reasoning and modeling decisions were developer-driven.
 
 ---
 
-## Final Verification
+# Final Verification Checklist
 
 Before submission:
 
-- All endpoints tested manually via Postman
-- Edge-case scenarios validated
-- Negative input cases validated
-- Settlement logic verified with multi-creditor case
-- `go build` completed with zero errors
+- All endpoints tested via Postman
+- Negative validations tested
+- Multi-creditor edge case validated
+- `go build` passes with zero errors
 - Database auto-migration verified
 - No passwords returned in responses
-- All money stored as `int64` paise
+- All monetary values stored as int64 paise
+- Settlement algorithm manually validated
 
 ---
 
-## Statement of Responsibility
+# Statement of Responsibility
 
 This project reflects the developer’s understanding of:
 
-- REST API design
-- Relational modeling
-- Financial precision handling
-- Greedy algorithm optimization
-- Validation and input hardening
-- Secure password storage
-- Dynamic balance computation
+- REST API architecture  
+- Relational data modeling  
+- Financial precision handling  
+- Greedy algorithm optimization  
+- Validation hardening  
+- Secure password storage  
+- Dynamic balance computation  
 
-AI tools were used as coding accelerators — not as substitutes for understanding.
+AI tools were used as implementation assistants, and all integrated code has been reviewed, tested, and fully understood.
 
-All implemented features can be explained and defended during evaluation.
+All implemented logic can be confidently explained during evaluation.
